@@ -7,13 +7,17 @@ public class ScanUtil {
 	public static String nextLine() {
 		return sc.nextLine();
 	}
+//   public static String nextLine(String message) {
+//      System.out.println(message);
+//      return sc.nextLine();
+//   }
 	public static int nextInt() {
 		while(true) {
 			try {
 				int result = Integer.parseInt(sc.nextLine());
 				return result;
 			}catch (NumberFormatException e) {
-				System.out.println("�Է°��� �߸��ƽ��ϴ�.");
+				System.out.println("ÀÔ·Â°ªÀÌ Àß¸øµÆ½À´Ï´Ù.");
 			}
 		}
 	}

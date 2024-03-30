@@ -36,7 +36,7 @@ public class MemberService {
 		printUtil.bar();
 		printUtil.blank(1);
 		System.out.println("\t\t== 회원가입 ==");
-		System.out.println("\t\t1. 멤버회원가입  \n\t\t2. 관리자회원가입\n\t\t0. 뒤로가기");
+		System.out.println("\t\t1. 멤버회원가입  \n\n\t\t2. 관리자회원가입");
 		printUtil.blank(1);
 		printUtil.bar();
 		
@@ -90,7 +90,7 @@ public class MemberService {
 		String hp="";
 		  while (true) {
 			  System.out.println(" ───────────────────────────────────────────────────");
-		         System.out.println(" * 전화번호 입력 [-제외 11자리로 입력해주세요.]");
+		         System.out.println(" * 전화번호 입력 [ ex) 01012345678 ]");
 		         System.out.print(" >> ");
 		         hp = ScanUtil.nextLine();
 		         System.out.println();
@@ -194,7 +194,7 @@ public class MemberService {
 				String hp="";
 				  while (true) {
 					  System.out.println(" ───────────────────────────────────────────────────");
-				         System.out.println(" * 전화번호 입력 [-제외 11자리로 입력해주세요.]");
+				         System.out.println(" * 전화번호 입력 [ ex) 01012345678 ]");
 				         System.out.print(" >> ");
 				         hp = ScanUtil.nextLine();
 				         System.out.println();
@@ -227,13 +227,10 @@ public class MemberService {
 						}
 	        		}
 				}else {
-					System.out.println("관리자 생성 비밀번호가 틀렸습니다. 메인 화면으로 이동합니다.");
+					System.out.println("관리자 생성 비밀번호가 틀렸습니다. 홈으로 이동합니다.");
 					ScanUtil.nextLine();
 			}
 	
-		}
-		else if(choice ==0) {
-			
 		}
 		return View.MAIN; //중복처리예외
 	}
@@ -396,20 +393,18 @@ public class MemberService {
 		
 		String sql="SELECT MEM_ID 아이디, MEM_NAME 이름, MEM_HP 전화번호 FROM MEMBER WHERE MEM_ID='"+memID+"'";
 		
-	    List<Map<String, Object>> memberList=memberDao.adminInquiry(sql);
-	
+		Map<String, Object> result=memberDao.inquiry(sql);
+		
 		System.out.println();
 	    printUtil.bar();
 	    System.out.print("\t\t== 회원 정보==\n");
 	    printUtil.blank(1);
-        for (Map<String, Object> list : memberList) {
-        System.out.println("아이디 :\t" + list.get("아이디"));
-        System.out.println("이름 :\t" + list.get("이름"));
-        System.out.println("전화번호 :\t" + list.get("전화번호"));
-     }
+	      for(String key : result.keySet()) {
+	         System.out.println(key + " : \t" + result.get(key));
+	      }
 		
 		System.out.println();
-		System.out.println("1.회원정보수정  2.회원탈퇴  0.뒤로가기");
+		System.out.println("1.회원정보수정  2.회원탈퇴 0.뒤로가기");
 		printUtil.bar();
 		System.out.print("번호입력>>");
 		int select = ScanUtil.nextInt();
@@ -417,23 +412,18 @@ public class MemberService {
 		switch(select) {
 		case 0 : return View.HOME;
 		case 1 : return View.MEMBER_UPDATE;
-		case 2 : return View.MEMBER_WITHDRAW;
+		case 2 : return View.MEMBER_RESIGN;
 		default : return View.ERROR;
 		}
 		
 	}
 	
 	public int infoUpdate() {
+		
 		Map<String, Object> map = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 		String memID = (String) map.get("MEM_ID");
-		String memPW = (String) map.get("MEM_PW");
 	
-		String sqlStr="UPDATE MEMBER SET " ;		 
-		printUtil.bar();
-		System.out.println( "본인 확인을 위해 비밀번호를 입력해주세요.");
-		 System.out.print("번호입력>> ");
-		String inpw=ScanUtil.nextLine();
-		if(inpw.equals(memPW)) {
+		String sqlStr="UPDATE MEMBER SET " ;
 		
 		printUtil.blank(2);
 		printUtil.bar2();
@@ -456,15 +446,7 @@ public class MemberService {
 		printUtil.blank(3);
 		printUtil.bar();
 		System.out.print("신규 비밀번호 : ");
-		String pw="";
-		 while (true) {
-	         System.out.println(" * 비밀번호 입력 [ 4글자 이상 입력]");
-	         System.out.print(" >> ");
-	         pw= ScanUtil.nextLine();
-	         System.out.println();
-	         if (normalizationPW(pw))
-	            break;
-	      }
+		String pw=ScanUtil.nextLine();
 		String sql=sqlStr+"MEM_PW = '"+ pw +"' WHERE MEM_ID = '"+memID+"'";
 	
 		int result=memberDao.update(sql);
@@ -505,24 +487,7 @@ public class MemberService {
 			printUtil.blank(3);
 			printUtil.bar();
 		System.out.print("신규 전화번호: "); 
-		String hp="";
-		  while (true) {
-		         System.out.println(" * 전화번호 입력 [-제외 11자리로 입력해주세요.]");
-		         System.out.print(" >> ");
-		         hp = ScanUtil.nextLine();
-		         System.out.println();
-		         if (normalizationTel(hp))
-		            break;
-		      }
-		  if(hp!=null) {
-				hp=hp.replaceAll(Pattern.quote("-")," ");
-				if (hp.length() == 11) {
-					// 010-1234-1234
-					hp = hp.substring(0, 3) + "-" + hp.substring(3, 7) + "-" + hp.substring(7);
-
-				} 
-				}
-	
+		String hp=ScanUtil.nextLine();
 		sql=sqlStr+"MEM_HP='"+hp+"' WHERE MEM_ID='"+memID+"'";
 	
 		int result2=memberDao.update(sql);
@@ -532,80 +497,32 @@ public class MemberService {
 		}
 		
 		}
-		}else {
-			System.out.println("비밀번호가 일치하지 않습니다. 홈화면으로 돌아갑니다.");
-			ScanUtil.nextLine();
+		return View.HOME;
+
+	}
+	public int resign() {
+		
+	
+		
+		System.out.println("대덕인재도서관의 회원탈퇴를 하시겠습니까? (Y/N)");
+		String flag=ScanUtil.nextLine();
+		if(flag.equalsIgnoreCase("y")) {
+		
+			Map<String, Object> map = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
+			String memID = (String) map.get("MEM_ID");
+			
+			String sql= "DELETE MEMBER WHERE MEM_ID='"+memID+"'";
+			int result=memberDao.resign(sql);
+			System.out.println(sql);
+			
+			
+			if(result>0) {
+				System.out.println("회원 정보가 삭제되었습니다. ");
+			}
 		}
 		return View.HOME;
 		
-
 	}
-	public int withdraw() {
-		  Map<String, Object> loginInfo = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
-	      String memID = (String) loginInfo.get("MEM_ID");
-	      String memPW = (String) loginInfo.get("MEM_PW");
-	      
-	      //외부정보확인
-	      printUtil.bar();
-	      System.out.println("본인 확인을 위해 비밀번호를 입력해주세요");
-	      System.out.print("번호입력>> ");
-	      String pw=ScanUtil.nextLine();
-	      
-	      
-	      if(pw.equals(memPW)) {
-	    	  
-		
-				System.out.println("정말 탈퇴하시겠습니까? (y/n)");
-				String flag=ScanUtil.nextLine();
-				if(flag.equalsIgnoreCase("y")) {
-					
-				
-	    String sql = "DELETE FROM BOARD WHERE MEM_ID = '" + memID + "'";
-	    memberDao.update(sql);
-	    
-	    String sql1 ="SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID='" + memID +"'";
-		int result = memberDao.update(sql1);
-//		System.out.println(result);
-
-		if(result>0) {
-			System.out.println("좌석을 이용중입니다.퇴실 후 이용해주십시오.");
-			ScanUtil.nextLine();
-			return View.RESERVATION;
-			}else {
-				
-				String sql3 = "DELETE FROM RESERVATION WHERE MEM_ID ='" + memID +"'";
-		        memberDao.update(sql3);
-		        
-		     // 회원 정보 삭제
-		        String sql4 = "DELETE FROM MEMBER WHERE MEM_ID = '" + memID + "'";
-		        int result4 = memberDao.update(sql4);
-		        
-		        
-		        if (result4 > 0) {
-		        	System.out.println();
-		            System.out.println("*탈퇴가 완료되었습니다. 이용해 주셔서 감사합니다.*");
-		            ScanUtil.nextLine();            
-		            Controller.sessionStorage.put("login", false);
-		            Controller.sessionStorage.put("loginInfo", null);
-		            return View.MAIN;
-		        } else {
-		            System.out.println("탈퇴 중 문제가 발생했습니다. 다시 시도해주세요.");
-		            ScanUtil.nextLine(); 
-		            return View.MEMBER_INQUIRY;
-		        }
-			}
-	        
-	      }
-			    else if(flag.equalsIgnoreCase("y")){
-			    	  System.out.println("홈화면으로 돌아갑니다.");
-			    	  return View.HOME;
-			    }
-				}
-	  
-		 return View.MAIN;
-	      
-	}
-
 	
 	public int admin_inquiry() {
 		Map<String, Object> map = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
@@ -613,57 +530,29 @@ public class MemberService {
 		
 		String sql="SELECT MEM_ID 아이디, MEM_NAME 이름, MEM_HP 전화번호 FROM MEMBER WHERE MEM_ID='"+memID+"'";
 		
-	    List<Map<String, Object>> memberList=memberDao.adminInquiry(sql);
+		List<Map<String, Object>> memberList=memberDao.adminInquiry(sql);
 		
+             for (Map<String, Object> list : memberList) {
+             System.out.print(list.get("아이디"));
+             System.out.print("\t" + list.get("이름"));
+             System.out.print("\t" + list.get("전화번호"));
+             System.out.println();
+          }
 		System.out.println();
 	    printUtil.bar();
 	    System.out.print("\t\t== 회원 정보==\n");
 	    printUtil.blank(1);
-        for (Map<String, Object> list : memberList) {
-        System.out.println("아이디 :\t" + list.get("아이디"));
-        System.out.println("이름 :\t" + list.get("이름"));
-        System.out.println("전화번호 :\t" + list.get("전화번호"));
-     }
-		printUtil.blank(1);
-		System.out.println(" 1.회원정보수정  2.회원탈퇴   3.회원목록 조회   0.뒤로가기");
-		printUtil.bar();
-		System.out.print("번호입력>> ");
+	    
+		System.out.print("0. 뒤로 가기 ");
 		int select = ScanUtil.nextInt();
 		
-		switch(select) {
-		case 0 : return View.HOME;
-		case 1 : return View.MEMBER_UPDATE;
-		case 2 : return View.MEMBER_WITHDRAW;
-		case 3 : return View.MEMBER_LIST;
-		default : return View.ERROR;
-		}
-		
-	}
-	public int MemberList() {
-		Map<String, Object> map = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
-		
-		if(map!=null) {
-		String sql="SELECT MEM_ID 아이디, MEM_NAME 이름, MEM_HP 전화번호 FROM MEMBER WHERE MEM_ID != 'guest' ORDER BY MEM_NAME ASC";
-		
-			printUtil.bar();
-	        System.out.println("\t\t== 회원 목록 ==");
-	        List<Map<String, Object>> memberList=memberDao.adminInquiry(sql);
-	        
-	        	for (Map<String, Object> list : memberList) {
-		        System.out.print("아이디 : "+list.get("아이디") + "\t");
-		        System.out.print("이름 : " + list.get("이름") + "   ");
-		        System.out.println("전화번호 : " + list.get("전화번호")+ "\t");
-		}
-	}
-		printUtil.bar2();
-		System.out.println("\n\t\t\t\t   0.뒤로가기");
-		int select = ScanUtil.nextInt();
 		if(select == 0) {
-			return View.MEMBER_ADMIN_INQUIRY;
-		}else {
-			System.out.println("잘못된 입력입니다!");
 			ScanUtil.nextLine();
+			return View.MEMBER_INQUIRY;
+		}else {
 			return View.ERROR;
 		}
+		
 	}
+
 }

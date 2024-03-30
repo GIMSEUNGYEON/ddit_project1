@@ -30,7 +30,7 @@ public class PrintUtil {
 						  "김승연, 김차은, 박우재, 배유림, ", "김승연, 김차은, 박우재, 배유림, ㅅ_", "김승연, 김차은, 박우재, 배유림, 송■", "김승연, 김차은, 박우재, 배유림, 송으_",
 						  "김승연, 김차은, 박우재, 배유림, 송은ㅂ_", "김승연, 김차은, 박우재, 배유림, 송은비" };
 		for (int i = 0; i < team.length; i++) {
-			Utility.wait(400);
+			Utility.wait(500);
 			bar();
 			blank(3);
 			System.out.println(team[i]);
@@ -62,7 +62,7 @@ public class PrintUtil {
 
 		bar();
 		blank(1);
-		System.out.println("\t\t대덕인재도서관");
+		System.out.println("\t\t도서관키오스크");
 		System.out.println("\t\t1.로그인");
 		System.out.println("\t\t2.회원가입");
 		System.out.println("\t\t3.게스트모드");

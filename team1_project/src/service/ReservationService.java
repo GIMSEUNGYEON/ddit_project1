@@ -30,7 +30,7 @@ public class ReservationService {
 //	}
 
 	// sql, List컬렉션, rs, rno, sno 변수선언
-	static String sql = null;
+	String sql = null;
 	List<Map<String, Object>> paramR = null;
 	int rs = 0;
 	int rno = 0;
@@ -39,6 +39,7 @@ public class ReservationService {
 	Map<String, Object> mem = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 	String memID;
 //	String memID = "EB0221";
+	
 
 	public int reservation() {
 
@@ -58,40 +59,35 @@ public class ReservationService {
 //		System.out.println((String) mem.get("MEM_ID"));
 		String memID = (String) mem.get("MEM_ID");
 
-		// 명령문 입력
+		// 명령문 입혁
 		switch (ScanUtil.nextInt()) {
 
 		case 0:
 			return View.HOME;// 컨트롤러 연결해야 돌아감
 
-		case 1: // ***********
-			if (memID.equals("guest")) {
+		case 1:  //***********
+			if(memID.equals("guest")) {
 				return View.RESERVATION_RNO;
 			}
-
-			sql = " SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
+			sql =" SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
 			Map<String, Object> s = jdbc.selectOne(sql);
 //			System.out.println(s.size());// s.size 6 출력 : key-value가 6쌍임
-			if (s != null) { // ** 예약기록이 있는지 확인 : 있으면 reservation으로 돌아가기
+			if ( s != null ) {    //** 예약기록이 있는지 확인 : 있으면 reservation으로 돌아가기
 				System.out.println("\t예약 중인 좌석을 먼저 퇴실해주세요. 퇴실 화면으로 이동합니다.");
 				ScanUtil.nextLine();
 //				reservationOut();
 				return View.RESERVATION_OUT;
 			}
-
+			
 //			reservationRno();// 컨트롤러 연결할때 주석처리
 			return View.RESERVATION_RNO;
 
-		case 2: // *******
-			sql = "SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
+		case 2: //*******
+
+			sql ="SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
 			s = jdbc.selectOne(sql);
 //			System.out.println(s.size());
-			if (mem.get("MEM_ADMIN").equals("T")) {
-//		            reservationOutAdmin();
-				return View.RESERVATION_OUT_ADMIN;
-			}
-
-			if (s == null) {
+			if ( s == null ) {
 				System.out.println("예약 중인 좌석이 없습니다. \t예약 첫화면으로 돌아갑니다.");
 				ScanUtil.nextLine();
 //				reservation();
@@ -111,7 +107,7 @@ public class ReservationService {
 	public int reservationRno() {
 		Map<String, Object> mem = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 		String memID = (String) mem.get("MEM_ID");
-
+		
 		printUtil.bar2();
 		System.out.println("");
 		System.out.println("\t\t열람실 선택");
@@ -125,7 +121,7 @@ public class ReservationService {
 		System.out.println("");
 		System.out.println("\t\t\t\t0. 뒤로가기");
 		System.out.print("\t\t선택 >> ");
-		if (memID.equals("guest")) {
+		if(memID.equals("guest")) {
 			ScanUtil.nextLine();
 			System.out.println("\n비회원이용자는 좌석 예약이 불가합니다. 홈화면으로 돌아갑니다.");
 			ScanUtil.nextLine();
@@ -168,7 +164,7 @@ public class ReservationService {
 			return View.RESERVATION_IN;
 
 		default:
-			System.out.println("\t잘못 입력하셨습니다.");
+			System.out.println("/t잘못 입력하셨습니다.");
 			ScanUtil.nextLine();
 //			reservationRno();
 			return View.RESERVATION_RNO;
@@ -210,12 +206,12 @@ public class ReservationService {
 			reservationRno();
 		} else if (sno > 0 && sno < 10) {
 			if (paramR.get(sno - 1).get("SEAT_REV").equals("T")) {
-				System.out.println("\t이미 예약된 좌석입니다. 다른 좌석을 선택하세요.");
+				System.out.println("/t이미 예약된 좌석입니다. 다른 좌석을 선택하세요.");
 				ScanUtil.nextLine();
 				reserveSeat9();
 			}
 		} else {
-			System.out.println("\t잘못 입력하셨습니다. 좌석을 선택하세요.");
+			System.out.println("/t잘못 입력하셨습니다. 좌석을 선택하세요.");
 			ScanUtil.nextLine();
 			reserveSeat9();
 		}
@@ -288,25 +284,23 @@ public class ReservationService {
 		select = ScanUtil.nextLine();
 		if (select.equalsIgnoreCase("y")) {
 //			memID = "EB0221"; //*************
-			String memID = (String) mem.get("MEM_ID"); // ********
-			sql = "UPDATE SEAT SET SEAT_REV='T' WHERE SEAT_RNO = " + rno + " AND SEAT_SNO = " + sno;
+			String memID = (String) mem.get("MEM_ID"); //********
+			sql = "UPDATE SEAT SET SEAT_REV='T' WHERE SEAT_RNO = " + rno + "AND SEAT_SNO = " + sno;
 			rs = jdbc.update(sql);
-			if (rs == 1) {
+			if ( rs == 1 ) {
 				System.out.println("\t좌석점유성공");
-			}
-			;// rs가 1이 나오면 예약 잘 된것.. 표시?
-			sql = "INSERT INTO RESERVATION(SEAT_RNO, SEAT_SNO, REV_NO, REV_IN, MEM_ID)" + "VALUES(" + rno + ", " + sno
-					+ ", \'" + rno + sno
-					+ "\'||TO_CHAR(SYSDATE,\'YYMMDDHH24MI\'), TO_CHAR(SYSDATE,\'YYMMDDHH24MI\'), \'" + memID + "\')";
+			};// rs가 1이 나오면 예약 잘 된것.. 표시?
+			sql = "INSERT INTO RESERVATION(SEAT_RNO, SEAT_SNO, REV_NO, REV_IN, MEM_ID)"+
+					"VALUES(" + rno + ", " + sno + ", \'" + rno + sno + "\'||TO_CHAR(SYSDATE,\'YYMMDDHH24MI\'), TO_CHAR(SYSDATE,\'YYMMDDHH24MI\'), \'" + memID + "\')";
 			rs = jdbc.update(sql);
-			if (rs == 1) {
+			if ( rs == 1 ) {
 				System.out.println("\t예약기록생성성공");
 			}
-//			Controller.sessionStorage.put("SEAT_RNO", rno);
-//			Controller.sessionStorage.put("SEAT_SNO", sno);
+			Controller.sessionStorage.put("SEAT_RNO", rno);
+			Controller.sessionStorage.put("SEAT_SNO", sno);
 			System.out.println("\t예약이 완료되었습니다. 처음 화면으로 돌아갑니다.");
 
-			ScanUtil.nextLine();
+				    ScanUtil.nextLine();
 //				    reservation();
 			return View.HOME;
 		}
@@ -316,10 +310,11 @@ public class ReservationService {
 			ScanUtil.nextLine();
 //			reservation();
 			return View.RESERVATION;
-		} else if (select.equals("0")) {// **********
+		} else if (select.equals("0")) {//**********
 //			reservation();
-			return View.RESERVATION_RNO;
-		} else {
+			return View.RESERVATION;
+		} 
+		else {
 			System.out.println("\t잘못 입력하셨습니다. 예약 첫화면으로 돌아갑니다.");
 			ScanUtil.nextLine();
 //			reservation();
@@ -339,19 +334,14 @@ public class ReservationService {
 //		Integer.parseInt((String)jdbc.selectOne(sql).get("COUNT(*)"));
 
 	}
-
 	public int reservationOut() {
-
 		Map<String, Object> mem = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 		String memID = (String) mem.get("MEM_ID");
-		sql = " SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
-		System.out.println(sql);
+		sql =" SELECT * FROM RESERVATION WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
 		Map<String, Object> s = jdbc.selectOne(sql);
 		rno = Integer.parseInt(String.valueOf(s.get("SEAT_RNO")));
-//		int rno = (Integer) s.get("SEAT_RNO");
 //		rno = (Integer) Controller.sessionStorage.get("SEAT_RNO");
 		sno = Integer.parseInt(String.valueOf(s.get("SEAT_SNO")));
-//		int sno = (Integer) s.get("SEAT_SNO");
 //		System.out.print("\t\t좌석입력 >> ");
 //		sno = (Integer) Controller.sessionStorage.get("SEAT_SNO");
 		printUtil.bar2();
@@ -364,19 +354,18 @@ public class ReservationService {
 		System.out.println("\t\t\t\t0. 뒤로가기");
 		System.out.print("\t\t선택 (Y/N) >> ");
 		select = ScanUtil.nextLine();
-
-		// **********************
+		
+		
+		//**********************
 		if (select.equalsIgnoreCase("y")) {
 			sql = "UPDATE SEAT SET SEAT_REV='F' WHERE SEAT_RNO = " + rno + "AND SEAT_SNO = " + sno;
 			rs = jdbc.update(sql);
-			if (rs == 1) {
+			if ( rs == 1 ) {
 				System.out.println("\t좌석비움성공");
-			}
-			;// rs가 1이 나오면 예약 잘 된것.. 표시?
-			sql = "UPDATE RESERVATION SET REV_OUT = TO_CHAR(SYSDATE,'YYMMDDHH24MI') WHERE REV_OUT IS NULL AND MEM_ID=\'"
-					+ memID + "\' ";
+			};// rs가 1이 나오면 예약 잘 된것.. 표시?
+			sql ="UPDATE RESERVATION SET REV_OUT = TO_CHAR(SYSDATE,'YYMMDDHH24MI') WHERE REV_OUT IS NULL AND MEM_ID=\'" + memID + "\' ";
 			rs = jdbc.update(sql);
-			if (rs == 1) {
+			if ( rs == 1 ) {
 				System.out.println("\t퇴실기록생성성공");
 			}
 			Controller.sessionStorage.remove("SEAT_RNO");
@@ -384,86 +373,20 @@ public class ReservationService {
 			System.out.println("\t퇴실이 완료되었습니다. 처음 화면으로 돌아갑니다.");
 			ScanUtil.nextLine();
 			return View.HOME;
-			// *********************
+			//*********************
 		} else if (select.equalsIgnoreCase("n")) {
 			System.out.println("\t퇴실을 취소하고 예약 첫화면으로 돌아갑니다.");
 			ScanUtil.nextLine();
 //			reservation();
 			return View.RESERVATION;
-		} else if (select.equals("0")) {// **********
+		} else if (select.equals("0")) {//**********
 //			reservation();
 			return View.RESERVATION;
-		} else {
+		} 
+		else {
 			System.out.println("\t잘못 입력하셨습니다. 예약 첫화면으로 돌아갑니다.");
 			ScanUtil.nextLine();
-////			reservation();
-			return View.RESERVATION;
-		}
-	}
-	
-
-	public int reservationOutAdmin() {
-		sql = " SELECT MEM_ID 사용자, SEAT_RNO 호실, SEAT_SNO 좌석, REV_IN 입실시간 FROM RESERVATION WHERE REV_OUT IS NULL";
-		List<Map<String, Object>> revd = jdbc.selectList(sql);
-		printUtil.bar2();
-		System.out.println("");
-		System.out.println("\t\t== 강제 퇴실 ==");
-		System.out.println("\t사용자\t호실\t좌석\t입실시간");
-		for (int i = 0; i < revd.size(); i++) {
-			System.out.println("\t" + revd.get(i).get("사용자") + "\t" + revd.get(i).get("호실") + "\t"
-					+ revd.get(i).get("좌석") + "\t" + revd.get(i).get("입실시간"));
-		}
-		printUtil.blank(4 - revd.size());
-		printUtil.bar2();
-		System.out.println("\n\t\t\t\t0. 뒤로가기");
-		System.out.print("\t퇴실할 호실을 입력하세요 >> ");
-		int rno = ScanUtil.nextInt();
-		System.out.print("\t퇴실할 좌석을 입력하세요 >> ");
-		int sno = ScanUtil.nextInt();
-
-		printUtil.bar2();
-		System.out.println("");
-		System.out.println("\t\t퇴실 확인");
-		printUtil.blank(2);
-		System.out.println("\t" + rno + "실 " + sno + "석을 퇴실하시겠습니까?");
-		printUtil.blank(2);
-		printUtil.bar();
-		System.out.println("\t\t\t\t0. 뒤로가기");
-		System.out.print("\t\t선택 (Y/N) >> ");
-		select = ScanUtil.nextLine();
-
-		// **********************
-		if (select.equalsIgnoreCase("y")) {
-			sql = "UPDATE SEAT SET SEAT_REV='F' WHERE SEAT_RNO = " + rno + "AND SEAT_SNO = " + sno;
-			rs = jdbc.update(sql);
-			if (rs == 1) {
-				System.out.println("\t좌석비움성공");
-			}
-			;// rs가 1이 나오면 예약 잘 된것.. 표시?
-			sql = "UPDATE RESERVATION SET REV_OUT = TO_CHAR(SYSDATE,'YYMMDDHH24MI') WHERE REV_OUT IS NULL AND SEAT_RNO = " + rno + "AND "
-					+ "SEAT_SNO = " + sno;
-			rs = jdbc.update(sql);
-			if (rs == 1) {
-				System.out.println("\t퇴실기록생성성공");
-			}
-			Controller.sessionStorage.remove("SEAT_RNO");
-			Controller.sessionStorage.remove("SEAT_SNO");
-			System.out.println("\t퇴실이 완료되었습니다. 처음 화면으로 돌아갑니다.");
-			ScanUtil.nextLine();
-			return View.HOME;
-			// *********************
-		} else if (select.equalsIgnoreCase("n")) {
-			System.out.println("\t퇴실을 취소하고 예약 첫화면으로 돌아갑니다.");
-			ScanUtil.nextLine();
-			reservation();
-			return View.RESERVATION;
-		} else if (select.equals("0")) {// **********
-			reservation();
-			return View.RESERVATION;
-		} else {
-			System.out.println("\t잘못 입력하셨습니다. 예약 첫화면으로 돌아갑니다.");
-			ScanUtil.nextLine();
-			reservation();
+//			reservation();
 			return View.RESERVATION;
 		}
 	}

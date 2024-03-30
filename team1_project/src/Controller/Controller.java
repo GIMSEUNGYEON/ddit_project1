@@ -23,6 +23,7 @@ public class Controller {
 		
 		printUtil.intro();
 
+		//PrintUtil.main();
 		
 		new Controller().controll();
 		
@@ -38,17 +39,16 @@ public class Controller {
 			case View.MEMBER_ADMIN_INQUIRY :view  = memberService.admin_inquiry(); break;
 			case View.MEMBER_LOGIN :	view = memberService.login();	break;		
 			case View.MEMBER_LOGOUT :	view = memberService.logout();	break;		
-			case View.MEMBER_WITHDRAW : view = memberService.withdraw(); break;
+//			case View.MEMBER : 			view = 
 			case View.MEMBER_SIGNUP :	view = memberService.signUp(); break;
 			case View.MEMBER_INQUIRY :	view = memberService.inquiry(); break;
 			case View.MEMBER_UPDATE : 	view =	memberService.infoUpdate(); break; 
-			case View.MEMBER_LIST : 	view = memberService.MemberList(); break;
+//			case View.MEMBER_RESIGN : 	view = 
 			case View.RESERVATION : 	view = res.reservation(); break;
 			case View.RESERVATION_RNO : view = res.reservationRno(); break;
 //			case View.RESERVATION_SNO : view =
 			case View.RESERVATION_IN : 	view = res.reservationIn(); break;
 			case View.RESERVATION_OUT : view = res.reservationOut(); break;
-			case View.RESERVATION_OUT_ADMIN : view = res.reservationOutAdmin(); break;
 			case View.BOARD : 			view = boardService.board(); break;
 			case View.BOARD_LIST : 		view = boardService.list(); break;
 			case View.BOARD_INSERT :    view = boardService.insert(); break;

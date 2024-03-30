@@ -20,11 +20,11 @@ public class BoardDAO {
 	JDBCUtil jdbc = JDBCUtil.getInstance();
 
 	public List<Map<String, Object>> board() {
-		return jdbc.selectList("SELECT BOARD_NO, SUBSTR(BOARD_TITLE,1,5) AS BOARD_TITLE, SUBSTR(BOARD_CONTENT,1,5) AS BOARD_CONTENT, mem_id, board_date FROM BOARD WHERE ROWNUM <=3 ORDER BY BOARD_NO");
+		return jdbc.selectList("SELECT BOARD_NO, SUBSTR(BOARD_TITLE,1,4) AS BOARD_TITLE, SUBSTR(BOARD_CONTENT,1,4) AS BOARD_CONTENT, mem_id, board_date FROM BOARD WHERE ROWNUM <=3 ORDER BY BOARD_NO");
 	}
 
 	public List<Map<String, Object>> listtt() {
 		return jdbc.selectList(
-				"SELECT BOARD_NO, SUBSTR(BOARD_TITLE,1,5) AS BOARD_TITLE, SUBSTR(BOARD_CONTENT,1,5) AS BOARD_CONTENT, mem_id, board_date FROM BOARD ORDER BY BOARD_NO");
+				"SELECT BOARD_NO, SUBSTR(BOARD_TITLE,1,4) AS BOARD_TITLE, SUBSTR(BOARD_CONTENT,1,4) AS BOARD_CONTENT, mem_id, board_date FROM BOARD ORDER BY BOARD_NO");
 	}
 }

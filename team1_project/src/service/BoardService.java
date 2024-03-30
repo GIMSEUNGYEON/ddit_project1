@@ -12,7 +12,6 @@ import View.View;
 import Controller.Controller;
 
 public class BoardService {
-	static int boardNo;
 	private static BoardService instance = null;
 
 	private BoardService() {
@@ -24,10 +23,10 @@ public class BoardService {
 		return instance;
 	}
 
-	JDBCUtil jdbc = JDBCUtil.getInstance(); 
+	JDBCUtil jdbc = JDBCUtil.getInstance(); // DAO에 있는데 여기 꼭 써줘야하는지
 	BoardDAO dao = BoardDAO.getInstance();
 	PrintUtil printUtil = new PrintUtil();
-
+	
 	public int board() {
 		Map<String, Object> map = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 		String memID = (String) map.get("MEM_ID");
@@ -62,6 +61,7 @@ public class BoardService {
 		default:return View.HOME;
 		}
 	}
+
 	public int list() {
 		System.out.println("\t\t== 게시판 목록 ==");
 		System.out.println("번호\t제목\t내용\t작성자\t작성일");
@@ -77,12 +77,11 @@ public class BoardService {
 			
 		}
 		printUtil.bar2();
-		System.out.println("\n상세보기(게시물 번호 입력) \t\t0.게시판 화면");
-		System.out.print(">>");
-		boardNo = ScanUtil.nextInt();
+		System.out.print("\n번호 입력 >>  \t\t0.게시판 화면");
+		int boardNo = ScanUtil.nextInt();
 		ArrayList<Object> param = new ArrayList<>();
 		param.add(boardNo); // 사용자의 입력을 매개변수로 추가
-		
+
 		String sql = "SELECT * FROM board WHERE board_no = ?";
 
 		// Execute the SQL query to retrieve data
@@ -103,14 +102,8 @@ public class BoardService {
 		        //System.out.println(row); // 결과를 출력하는 예제
 		    }
 		    printUtil.bar();
-		    System.out.println("1.수정\t2.삭제\t0.목록으로 돌아가기");
-		    
-		    int select = ScanUtil.nextInt();
-		    switch(select) {
-		    case 1 : return View.BOARD_UPDATE;
-		    case 2 : return View.BOARD_DELETE;
-		    case 0 : return View.BOARD;
-		    }
+		    System.out.println("목록으로 돌아가기>> 엔터입력");
+		    ScanUtil.nextLine();
 		    return View.BOARD_LIST;
 		
 		}else if(boardNo == 0) {
@@ -149,8 +142,6 @@ public class BoardService {
 		String memID=(String) map.get("MEM_ID");
 		param.add(memID);
 		
-		
-		
 		printUtil.loading();
 		
 		int result = jdbc.update(sql, param);
@@ -169,56 +160,58 @@ public class BoardService {
 	}
 
 	public int update() {
-	    ArrayList<Object> param = new ArrayList<>();
+		   ArrayList<Object> param = new ArrayList<>();
+		    
+		    System.out.print("수정할 게시글 번호 입력 >> ");
+		    int boardNoToUpdate = ScanUtil.nextInt();
 
+		    // 게시글의 작성자를 가져옵니다.
+		    String fetchAuthorSql = "SELECT MEM_ID FROM BOARD WHERE BOARD_NO = ?";
+		    ArrayList<Object> fetchParams = new ArrayList<>();
+		    fetchParams.add(boardNoToUpdate);
+		    Map<String, Object> postInfo = jdbc.selectOne(fetchAuthorSql, fetchParams);
 
-	    // 게시글의 작성자를 가져옵니다.
-	    String fetchAuthorSql = "SELECT MEM_ID FROM BOARD WHERE BOARD_NO = ?";
-	    ArrayList<Object> fetchParams = new ArrayList<>();
-	    fetchParams.add(boardNo);
-	    Map<String, Object> postInfo = jdbc.selectOne(fetchAuthorSql, fetchParams);
+		    if (postInfo == null) {
+		        System.out.println("게시글을 찾을 수 없습니다.");
+		        ScanUtil.nextLine();
+		        return View.BOARD;
+		    }
 
-	    if (postInfo == null) {
-	        System.out.println("게시글을 찾을 수 없습니다.");
-	        ScanUtil.nextLine();
-	        return View.BOARD;
-	    }
+		    // 현재 로그인한 사용자의 ID를 가져옵니다.
+		    Map<String, Object> loggedInUser = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
+		    String loggedInUserId = (String) loggedInUser.get("MEM_ID");
 
-	    // 현재 로그인한 사용자의 정보를 가져옵니다.
-	    Map<String, Object> loggedInUser = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
-	    String loggedInUserId = (String) loggedInUser.get("MEM_ID");
-	    boolean isAdmin = "T".equals(loggedInUser.get("MEM_ADMIN"));
+		    // 현재 로그인한 사용자가 게시글의 작성자와 일치하는지 확인합니다.
+		    if (!loggedInUserId.equals(postInfo.get("MEM_ID"))) {
+		        System.out.println("권한이 없습니다. 게시글의 작성자만 수정할 수 있습니다.");
+		        ScanUtil.nextLine();
+		        return View.BOARD;
+		    }
 
-	    // 현재 로그인한 사용자가 게시글의 작성자이거나 관리자인지 확인합니다.
-	    if (!(isAdmin || loggedInUserId.equals(postInfo.get("MEM_ID")))) {
-	        System.out.println("권한이 없습니다. 게시글의 작성자 또는 관리자만 수정할 수 있습니다.");
-	        ScanUtil.nextLine();
-	        return View.BOARD;
-	    }
+		    String sql = "UPDATE BOARD SET BOARD_TITLE = ?, BOARD_CONTENT = ? WHERE BOARD_NO = ?";
 
-	    String sql = "UPDATE BOARD SET BOARD_TITLE = ?, BOARD_CONTENT = ? WHERE BOARD_NO = ?";
+		    System.out.print("제목>");
+		    String updateTitle = ScanUtil.nextLine() + "(수정됨)";
+		    param.add(updateTitle);
+		    System.out.print("내용>");
+		    param.add(ScanUtil.nextLine());
+		    param.add(boardNoToUpdate);
 
-	    System.out.print("제목>");
-	    String titleAdd = ScanUtil.nextLine()+"(수정됨)";
-	    param.add(titleAdd);
-	    System.out.print("내용>");
-	    param.add(ScanUtil.nextLine());
-	    param.add(boardNo);
+		    int result = jdbc.update(sql, param);
 
-	    int result = jdbc.update(sql, param);
-
-	    System.out.println(result + "개의 행이 수정되었습니다.");
-	    ScanUtil.nextLine();
-	    return View.BOARD;
+		    System.out.println(result + "개의 행이 수정되었습니다.");
+		    ScanUtil.nextLine();
+		    return View.BOARD;
 	}
-	
 
 	public int delete() {
+	    System.out.print("삭제할 게시글 번호 입력 >> ");
+	    int boardNoToDelete = ScanUtil.nextInt();
 	    
 	    // Fetch the author of the post the user wants to delete
 	    String fetchAuthorSql = "SELECT MEM_ID FROM BOARD WHERE BOARD_NO = ?";
 	    ArrayList<Object> fetchParams = new ArrayList<>();
-	    fetchParams.add(boardNo);
+	    fetchParams.add(boardNoToDelete);
 	    Map<String, Object> postInfo = jdbc.selectOne(fetchAuthorSql, fetchParams);
 
 	    if (postInfo == null) {
@@ -230,10 +223,9 @@ public class BoardService {
 	    // Get the logged-in user's ID
 	    Map<String, Object> loggedInUser = (Map<String, Object>) Controller.sessionStorage.get("loginInfo");
 	    String loggedInUserId = (String) loggedInUser.get("MEM_ID");
-	    boolean isAdmin = "T".equals(loggedInUser.get("MEM_ADMIN"));
 
 	    // Check if the logged-in user is the author of the post
-	    if (!(isAdmin ||loggedInUserId.equals(postInfo.get("MEM_ID")))) {
+	    if (!loggedInUserId.equals(postInfo.get("MEM_ID"))) {
 	        System.out.println("권한이 없습니다. 게시글의 작성자만 삭제할 수 있습니다.");
 	        ScanUtil.nextLine();
 	        return View.BOARD;
@@ -242,11 +234,7 @@ public class BoardService {
 	    // If the logged-in user is the author, proceed with the deletion
 	    String deleteSql = "DELETE FROM BOARD WHERE BOARD_NO = ?";
 	    ArrayList<Object> deleteParams = new ArrayList<>();
-	    deleteParams.add(boardNo);
-	    System.out.println("정말 삭제하시겠습니까? y/n");
-	    String select = ScanUtil.nextLine();
-	    if(select.equalsIgnoreCase("y")) {
-	    	
+	    deleteParams.add(boardNoToDelete);
 	    int deleteResult = jdbc.update(deleteSql, deleteParams);
 
 	    if (deleteResult > 0) {
@@ -255,7 +243,7 @@ public class BoardService {
 	        // Reorder the board numbers
 	        String reorderSql = "UPDATE BOARD SET BOARD_NO = BOARD_NO - 1 WHERE BOARD_NO > ?";
 	        ArrayList<Object> reorderParams = new ArrayList<>();
-	        reorderParams.add(boardNo);
+	        reorderParams.add(boardNoToDelete);
 	        int reorderResult = jdbc.update(reorderSql, reorderParams);
 	        if (reorderResult > 0) {
 	        //    System.out.println(reorderResult + "개의 게시글 번호가 정렬되었습니다.");
@@ -264,9 +252,6 @@ public class BoardService {
 	        }
 	    } else {
 	        System.out.println("게시글 삭제에 실패했습니다.");
-	    }
-	    }else if(select.equalsIgnoreCase("n")) {
-	    	return View.BOARD;
 	    }
 
 	    ScanUtil.nextLine();

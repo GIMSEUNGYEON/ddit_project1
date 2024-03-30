@@ -13,17 +13,15 @@ public interface View {
 	final int MEMBER_INQUIRY = 23; // ¸â¹öÁ¤º¸Á¶È¸
 	final int MEMBER_ADMIN_INQUIRY = 231; // ¸â¹öÁ¤º¸Á¶È¸
 	final int MEMBER_UPDATE = 24; // ¸â¹öÁ¤º¸¼öÁ¤
-	final int MEMBER_WITHDRAW = 25; // ¸â¹öÅ»Åð
+	final int MEMBER_RESIGN = 25; // ¸â¹öÅ»Åð
 	final int MEMBER_LOGOUT = 26; // ¸â¹öÅ»Åð
-	final int MEMBER_LIST = 27;
+
 	// ¿¹¾à ´ã´ç
 	final int RESERVATION = 3; // ÀÔ½Ç, Åð½Ç ¼±ÅÃ
 	final int RESERVATION_RNO = 311; // ¿­
 	final int RESERVATION_SNO = 312;
 	final int RESERVATION_IN = 31;
 	final int RESERVATION_OUT = 32;
-	final int RESERVATION_OUT_ADMIN = 321;
-	
 //	int RESERVATION_ADD = 33; //¿¬Àå
 	
 	// º¸µå ´ã´ç
